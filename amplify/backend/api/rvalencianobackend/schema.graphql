@@ -1,0 +1,38 @@
+type Topic
+  @model
+  @key(
+    name: "byCreatedAtDate"
+    fields: ["type", "createdAt"]
+    queryField: "getTopicsByCreatedAtDate"
+  ) {
+  id: ID!
+  title: String!
+  type: String!
+  description: String
+  comments: [Comment] @connection(keyName: "TopicComments")
+  tags: [TopicTag] @connection(keyName: "byTopic", fields: ["id"])
+  createdAt: AWSDateTime!
+}
+
+type Tag @model {
+  id: ID!
+  tag: String
+  topics: [TopicTag] @connection(keyName: "byTag", fields: ["id"])
+}
+
+type Comment @model {
+  id: ID!
+  text: String
+  topic: Topic @connection(keyName: "TopicComments")
+}
+
+type TopicTag
+  @model(queries: null)
+  @key(name: "byTopic", fields: ["topicId", "tagId"])
+  @key(name: "byTag", fields: ["tagId", "topicId"]) {
+  id: ID!
+  topicId: ID!
+  tagId: ID!
+  topic: Topic! @connection(fields: ["topicId"])
+  tag: Tag! @connection(fields: ["tagId"])
+}
